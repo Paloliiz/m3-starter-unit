@@ -5,161 +5,344 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Starter Unit: Grammar Vault</title>
     <style>
-        :root { --primary: #4A90E2; --dark: #2C3E50; --light: #F8F9FA; --accent: #E74C3C; }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #ebf0f5; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        .slide-container { width: 100%; max-width: 720px; height: 450px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
-        .slide { padding: 40px; display: none; height: 100%; box-sizing: border-box; animation: fadeIn 0.4s ease; }
-        .slide.active { display: block; }
-        .slide h2 { color: var(--primary); margin-top: 0; border-bottom: 3px solid #eee; padding-bottom: 10px; font-size: 24px; display: flex; justify-content: space-between; align-items: center;}
-        .badge { font-size: 14px; background: #e8f4fd; color: var(--primary); padding: 4px 10px; border-radius: 20px; font-weight: normal; }
-        .content-box { font-size: 16px; line-height: 1.6; color: var(--dark); }
-        .rule-card { background: var(--light); border-left: 4px solid var(--accent); padding: 10px 15px; margin: 12px 0; border-radius: 0 6px 6px 0; font-size: 15px; }
-        .controls { background: var(--dark); padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: bold; }
-        .btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background-color: var(--primary); color: white; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+        :root {
+            --primary: #4A90E2;
+            --dark: #2C3E50;
+            --light: #F8F9FA;
+            --accent: #E74C3C;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark);
+            overflow: hidden;
+        }
+
+        /* ตัวกรอบสไลด์หลัก กางเต็ม 100% ของพื้นที่หน้าจอหรือกรอบ Notion */
+        .presentation-wrapper {
+            display: flex;
+            flex-direction: column;
+            width: 100vw;
+            height: 100vh;
+            background-color: #ffffff;
+        }
+
+        /* พื้นที่เนื้อหาสไลด์ (เปิดให้เลื่อน Scrollbar ได้ถ้าเนื้อหายาวเกินหน้าจอ) */
+        .slide-viewer {
+            flex-grow: 1;
+            width: 100%;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        /* สไตล์สำหรับสไลด์เนื้อหาทั่วไป */
+        .slide {
+            display: none;
+            padding: 30px max(20px, calc((100% - 800px) / 2)); /* จัดเนื้อหาให้อยู่กึ่งกลางเสมอ */
+            min-height: 100%;
+            box-sizing: border-box;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        /* สไตล์พิเศษสำหรับสไลด์หน้าปก (ใช้ Flex Center) */
+        .slide-cover {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #4A90E2, #2B4E72);
+            color: white;
+            min-height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .slide-cover.active {
+            display: flex;
+        }
+
+        .slide h2 {
+            color: var(--primary);
+            margin-top: 0;
+            border-bottom: 3px solid #eee;
+            padding-bottom: 12px;
+            font-size: 26px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .badge {
+            font-size: 14px;
+            background: #e8f4fd;
+            color: var(--primary);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: normal;
+        }
+
+        .content-box {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--dark);
+            padding-bottom: 20px;
+        }
+
+        .rule-card {
+            background: var(--light);
+            border-left: 4px solid var(--accent);
+            padding: 12px 18px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 15px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+
+        /* แถบปุ่มควบคุมด้านล่างสุด */
+        .controls-bar {
+            height: 60px;
+            background-color: var(--dark);
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #357ABD;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #555;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ปรับสัดส่วนเมื่อเปิดในมือถือ */
+        @media (max-width: 600px) {
+            .slide h2 { font-size: 20px; }
+            table, th, td { font-size: 13px; padding: 6px; }
+            .btn { padding: 8px 14px; font-size: 14px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="slide-container">
+<div class="presentation-wrapper">
     
-    <!-- Slide 1: Cover -->
-    <div class="slide active" style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #4A90E2, #2B4E72); color: white;">
-        <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 14px; margin-bottom: 15px;">SPARK 3: Starter Unit</span>
-        <h1 style="font-size: 36px; margin: 0 0 10px 0;">GRAMMAR SUMMARY</h1>
-        <p style="font-size: 18px; opacity: 0.9;">สรุปไวยากรณ์ ม.3 บทที่ 0 ฉบับเข้าใจง่าย</p>
-    </div>
+    <!-- พื้นที่แสดงสไลด์ -->
+    <div class="slide-viewer">
 
-    <!-- Slide 2: Pronouns -->
-    <div class="slide">
-        <h2>1. Pronouns & Possessives <span class="badge">คำสรรพนาม</span></h2>
-        <div class="content-box">
-            <table>
-                <tr><th>Subject (ประธาน)</th><th>Object (กรรม)</th><th>Possessive Det. (แสดงเจ้าของ + นาม)</th><th>Possessive Pronoun (ของฉัน - ไม่ต้องมีนาม)</th></tr>
-                <tr><td>I / You / We / They</td><td>me / you / us / them</td><td>my / your / our / their</td><td>mine / yours / ours / theirs</td></tr>
-                <tr><td>He / She / It</td><td>him / her / it</td><td>his / her / its</td><td>his / hers / <b>(ไม่มีของ It)</b></td></tr>
-            </table>
-            <div class="rule-card">
-                <b>🔥 กฎเหล็กต้องจำ:</b><br>
-                • <code>its</code> (ไม่มี apostrophe) = ของมัน เช่น <i>Look at that dog! <b>Its</b> tail is short.</i><br>
-                • <code>it's</code> (มี apostrophe) = It is หรือ It has เช่น <i><b>It's</b> a warm day.</i>
+        <!-- Slide 1: Cover (ใช้คลาส slide-cover) -->
+        <div class="slide-cover slide-item active">
+            <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 14px; margin-bottom: 15px;">SPARK 3: Starter Unit</span>
+            <h1 style="font-size: 38px; margin: 0 0 10px 0;">GRAMMAR SUMMARY</h1>
+            <p style="font-size: 18px; opacity: 0.9;">สรุปไวยากรณ์ ม.3 บทที่ 0 ฉบับเข้าใจง่าย</p>
+            <p style="font-size: 14px; margin-top: 20px; color: #FFD166;">โรงเรียนเขาฉกรรจ์วิทยาคม</p>
+        </div>
+
+        <!-- Slide 2: Pronouns -->
+        <div class="slide slide-item">
+            <h2>1. Pronouns & Possessives <span class="badge">คำสรรพนาม</span></h2>
+            <div class="content-box">
+                <table>
+                    <tr><th>Subject (ประธาน)</th><th>Object (กรรม)</th><th>Possessive Det. (แสดงเจ้าของ + นาม)</th><th>Possessive Pronoun (ของฉัน - ไม่ต้องมีนาม)</th></tr>
+                    <tr><td>I / You / We / They</td><td>me / you / us / them</td><td>my / your / our / their</td><td>mine / yours / ours / theirs</td></tr>
+                    <tr><td>He / She / It</td><td>him / her / it</td><td>his / her / its</td><td>his / hers / <b>(ไม่มีของ It)</b></td></tr>
+                </table>
+                <div class="rule-card">
+                    <b>🔥 กฎเหล็กต้องจำ:</b><br>
+                    • <code>its</code> (ไม่มี apostrophe) = ของมัน เช่น <i>Look at that dog! <b>Its</b> tail is short.</i><br>
+                    • <code>it's</code> (มี apostrophe) = It is หรือ It has เช่น <i><b>It's</b> a warm day.</i>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Slide 3: Can / Have got -->
-    <div class="slide">
-        <h2>2. Can & Have got <span class="badge">ความสามารถ & การมี</span></h2>
-        <div class="content-box">
-            <p><b>• The verb 'Can' (บอกความสามารถ):</b> ใช้เหมือนกันทุกประธาน ตามด้วย V.1 ไม่ผันเสมอ เช่น <i>Kim can sing very well.</i></p>
-            <p><b>• The verb 'Have got' (บอกการครอบครอง / ลักษณะ / อาการป่วย):</b><br>
-               - I / You / We / They $\rightarrow$ <b>have got</b> (I've got a headache)<br>
-               - He / She / It $\rightarrow$ <b>has got</b> (She's got long hair)
-            </p>
-            <div class="rule-card">
-                <b>⚠️ การตอบสั้น (Short Answers):</b> ห้ามพ่วงคำว่า got มาด้วยเด็ดขาด!<br>
-                <i>Have you got a computer?</i> $\rightarrow$ ตอบ <b>Yes, I have.</b> (ห้ามตอบ Yes, I have got)
+        <!-- Slide 3: Can / Have got -->
+        <div class="slide slide-item">
+            <h2>2. Can & Have got <span class="badge">ความสามารถ & การมี</span></h2>
+            <div class="content-box">
+                <p><b>• The verb 'Can' (บอกความสามารถ):</b> ใช้เหมือนกันทุกประธาน ตามด้วย V.1 ไม่ผันเสมอ เช่น <i>Kim can sing very well.</i></p>
+                <p><b>• The verb 'Have got' (บอกการครอบครอง / ลักษณะ / อาการป่วย):</b><br>
+                   - I / You / We / They $\rightarrow$ <b>have got</b> (I've got a headache)<br>
+                   - He / She / It $\rightarrow$ <b>has got</b> (She's got long hair)
+                </p>
+                <div class="rule-card">
+                    <b>⚠️ การตอบสั้น (Short Answers):</b> ห้ามพ่วงคำว่า got มาด้วยเด็ดขาด!<br>
+                    <i>Have you got a computer?</i> $\rightarrow$ ตอบ <b>Yes, I have.</b> (ห้ามตอบ Yes, I have got)
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Slide 4: Present Simple (Rules) -->
-    <div class="slide">
-        <h2>3. Present Simple (1) <span class="badge">การเติม -s / -es</span></h2>
-        <div class="content-box">
-            <p>ใช้กับ: <b>ข้อเท็จจริงทั่วไป, ตารางเวลา, และกิจวัตรประจำวัน</b> (He works as a taxi driver.)</p>
-            <b>กฎการเติม -s / -es ที่กริยา (เมื่อประธานเป็นเอกพจน์ He, She, It):</b>
-            <ol style="margin-top: 5px; padding-left: 20px;">
-                <li>กริยาทั่วไป เติม <b>-s</b> ได้เลย (talk $\rightarrow$ talks)</li>
-                <li>ลงท้ายด้วย <b>ss, sh, ch, x, o</b> ให้เติม <b>-es</b> (catch $\rightarrow$ catches, go $\rightarrow$ goes)</li>
-                <li>หน้า y เป็นพยัญชนะ ให้เปลี่ยน y เป็น i แล้วเติม <b>-es</b> (try $\rightarrow$ tries) *แต่ถ้าหน้า y เป็นสระ a,e,i,o,u เติม s ได้เลย (play $\rightarrow$ plays)</li>
-            </ol>
-        </div>
-    </div>
-
-    <!-- Slide 5: Adverbs of Frequency -->
-    <div class="slide">
-        <h2>4. Adverbs of Frequency <span class="badge">บอกความถี่</span></h2>
-        <div class="content-box">
-            <p>เรียงจากบ่อยไปน้อย: <b>always (100%) > usually > often > sometimes > rarely/seldom (10%) > never (0%)</b></p>
-            <p><b>📍 ตำแหน่งการวางในประโยค:</b></p>
-            • <b>วาง "หน้า" กริยาแท้:</b> Brian <u>always</u> <b>has</b> lunch at home.<br>
-            • <b>วาง "หลัง" V.to be (is/am/are):</b> She <b>is</b> <u>always</u> so nice.
-            <div class="rule-card">
-                <b>🚨 ระวัง:</b> คำว่า <code>rarely</code>, <code>seldom</code>, <code>never</code> มีความหมายเป็นปฏิเสธในตัวอยู่แล้ว <b>ห้ามใช้ร่วมกับคำว่า not อีก</b> (เช่น เขียน Gina rarely stays up late. ถูกแล้ว ห้ามใส่ doesn't)
+        <!-- Slide 4: Present Simple (Rules) -->
+        <div class="slide slide-item">
+            <h2>3. Present Simple (1) <span class="badge">การเติม -s / -es</span></h2>
+            <div class="content-box">
+                <p>ใช้กับ: <b>ข้อเท็จจริงทั่วไป, ตารางเวลา, และกิจวัตรประจำวัน</b> (He works as a taxi driver.)</p>
+                <b>กฎการเติม -s / -es ที่กริยา (เมื่อประธานเป็นเอกพจน์ He, She, It):</b>
+                <ol style="margin-top: 5px; padding-left: 20px;">
+                    <li>กริยาทั่วไป เติม <b>-s</b> ได้เลย (talk $\rightarrow$ talks)</li>
+                    <li>ลงท้ายด้วย <b>ss, sh, ch, x, o</b> ให้เติม <b>-es</b> (catch $\rightarrow$ catches, go $\rightarrow$ goes)</li>
+                    <li>หน้า y เป็นพยัญชนะ ให้เปลี่ยน y เป็น i แล้วเติม <b>-es</b> (try $\rightarrow$ tries) *แต่ถ้าหน้า y เป็นสระ a,e,i,o,u เติม s ได้เลย (play $\rightarrow$ plays)</li>
+                </ol>
             </div>
         </div>
-    </div>
 
-    <!-- Slide 6: Question Words -->
-    <div class="slide">
-        <h2>5. WH-Question Words <span class="badge">คำแสดงคำถาม</span></h2>
-        <div class="content-box">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div>• <b>Who / Whose</b> = ถามคน / ของใคร<br>• <b>What / Which</b> = อะไร / อันไหน (Which ใช้เมื่อมีให้เลือกจำกัด)<br>• <b>Where</b> = ที่ไหน (สถานที่)</div>
-                <div>• <b>When / What time</b> = เมื่อไหร่ / กี่โมง<br>• <b>How long</b> = นานแค่ไหน<br>• <b>How far</b> = ไกลแค่ไหน (ระยะทาง)</div>
-            </div>
-            <div class="rule-card" style="margin-top: 15px;">
-                <i>"<b>Which</b> dress are you wearing, the green or the black one?"</i> (จำกัดตัวเลือก)
-            </div>
-        </div>
-    </div>
-
-    <!-- Slide 7: Prepositions -->
-    <div class="slide">
-        <h2>6. Prepositions of Time & Place <span class="badge">บุพบท</span></h2>
-        <div class="content-box">
-            <p><b>⏰ เวลา (Time):</b><br>
-               • <b>IN:</b> เดือน (in May), ฤดู (in summer), ปี (in 2012), ช่วงวัน (in the morning)<br>
-               • <b>ON:</b> วันในสัปดาห์ (on Sunday), วันที่ระบุเลข (on 21st May), วันสำคัญ (on New Year's Day)<br>
-               • <b>AT:</b> เวลาตามเข็มนาฬิกา (at 5 o'clock), เทศกาล (at Christmas), คำยกเว้น: at night, at noon
-            </p>
-            <div class="rule-card">
-                <b>📌 ห้ามใช้ In, On, At นำหน้าคำเหล่านี้:</b> today, tomorrow, tonight, yesterday, this, last, next, every
+        <!-- Slide 5: Adverbs of Frequency -->
+        <div class="slide slide-item">
+            <h2>4. Adverbs of Frequency <span class="badge">บอกความถี่</span></h2>
+            <div class="content-box">
+                <p>เรียงจากบ่อยไปน้อย: <b>always (100%) > usually > often > sometimes > rarely/seldom (10%) > never (0%)</b></p>
+                <p><b>📍 ตำแหน่งการวางในประโยค:</b></p>
+                • <b>วาง "หน้า" กริยาแท้:</b> Brian <u>always</u> <b>has</b> lunch at home.<br>
+                • <b>วาง "หลัง" V.to be (is/am/are):</b> She <b>is</b> <u>always</u> so nice.
+                <div class="rule-card">
+                    <b>🚨 ระวัง:</b> คำว่า <code>rarely</code>, <code>seldom</code>, <code>never</code> มีความหมายเป็นปฏิเสธในตัวอยู่แล้ว <b>ห้ามใช้ร่วมกับคำว่า not อีก</b> (เช่น เขียน Gina rarely stays up late. ถูกแล้ว ห้ามใส่ doesn't)
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Slide 8: Quantifiers -->
-    <div class="slide">
-        <h2>7. Quantifiers <span class="badge">บอกปริมาณ</span></h2>
-        <div class="content-box">
-            <p>• <b>a lot of / lots of:</b> ใช้กับประโยคบอกเล่าได้ทั้ง นามนับได้พหูพจน์ และ นามนับไม่ได้</p>
-            <p>• <b>much (นับไม่ได้) / many (นับได้):</b> มักใช้ในประโยคคำถามและปฏิเสธ</p>
-            <table style="margin-top: 5px;">
-                <tr><th>ความหมาย</th><th>ใช้กับ นามนับได้ (พหูพจน์)</th><th>ใช้กับ นามนับไม่ได้</th></tr>
-                <tr><td><b>มีน้อย...แต่ก็พอมี</b> (เชิงบวก)</td><td><b>a few</b> (apples)</td><td><b>a little</b> (money)</td></tr>
-                <tr><td><b>มีน้อยมากแทบไม่มี</b> (เชิงลบ)</td><td><b>few</b> (people)</td><td><b>little</b> (time)</td></tr>
-            </table>
+        <!-- Slide 6: Question Words -->
+        <div class="slide slide-item">
+            <h2>5. WH-Question Words <span class="badge">คำแสดงคำถาม</span></h2>
+            <div class="content-box">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>• <b>Who / Whose</b> = ถามคน / ของใคร<br>• <b>What / Which</b> = อะไร / อันไหน (Which ใช้เมื่อมีให้เลือกจำกัด)<br>• <b>Where</b> = ที่ไหน (สถานที่)</div>
+                    <div>• <b>When / What time</b> = เมื่อไหร่ / กี่โมง<br>• <b>How long</b> = นานแค่ไหน<br>• <b>How far</b> = ไกลแค่ไหน (ระยะทาง)</div>
+                </div>
+                <div class="rule-card" style="margin-top: 15px;">
+                    <i>"<b>Which</b> dress are you wearing, the green or the black one?"</i> (จำกัดตัวเลือก)
+                </div>
+            </div>
         </div>
+
+        <!-- Slide 7: Prepositions -->
+        <div class="slide slide-item">
+            <h2>6. Prepositions of Time & Place <span class="badge">บุพบท</span></h2>
+            <div class="content-box">
+                <p><b>⏰ เวลา (Time):</b><br>
+                   • <b>IN:</b> เดือน (in May), ฤดู (in summer), ปี (in 2012), ช่วงวัน (in the morning)<br>
+                   • <b>ON:</b> วันในสัปดาห์ (on Sunday), วันที่ระบุเลข (on 21st May), วันสำคัญ (on New Year's Day)<br>
+                   • <b>AT:</b> เวลาตามเข็มนาฬิกา (at 5 o'clock), เทศกาล (at Christmas), คำยกเว้น: at night, at noon
+                </p>
+                <div class="rule-card">
+                    <b>📌 ห้ามใช้ In, On, At นำหน้าคำเหล่านี้:</b> today, tomorrow, tonight, yesterday, this, last, next, every
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Quantifiers -->
+        <div class="slide slide-item">
+            <h2>7. Quantifiers <span class="badge">บอกปริมาณ</span></h2>
+            <div class="content-box">
+                <p>• <b>a lot of / lots of:</b> ใช้กับประโยคบอกเล่าได้ทั้ง นามนับได้พหูพจน์ และ นามนับไม่ได้</p>
+                <p>• <b>much (นับไม่ได้) / many (นับได้):</b> มักใช้ในประโยคคำถามและปฏิเสธ</p>
+                <table style="margin-top: 5px;">
+                    <tr><th>ความหมาย</th><th>ใช้กับ นามนับได้ (พหูพจน์)</th><th>ใช้กับ นามนับไม่ได้</th></tr>
+                    <tr><td><b>มีน้อย...แต่ก็พอมี</b> (เชิงบวก)</td><td><b>a few</b> (apples)</td><td><b>a little</b> (money)</td></tr>
+                    <tr><td><b>มีน้อยมากแทบไม่มี</b> (เชิงลบ)</td><td><b>few</b> (people)</td><td><b>little</b> (time)</td></tr>
+                </table>
+            </div>
+        </div>
+
     </div>
 
-    <div class="controls">
+    <!-- แถบปุ่มควบคุมด้านล่าง -->
+    <div class="controls-bar">
         <button class="btn" id="prevBtn" onclick="changeSlide(-1)">➔ ย้อนกลับ</button>
         <span id="page-num">หน้า 1 / 8</span>
         <button class="btn" id="nextBtn" onclick="changeSlide(1)">ถัดไป ➔</button>
     </div>
+
 </div>
 
 <script>
     let currentSlide = 0;
-    const slides = document.querySelectorAll(".slide");
-    
-    function changeSlide(direction) {
-        slides[currentSlide].classList.remove("active");
-        currentSlide += direction;
-        slides[currentSlide].classList.add("active");
+    const allSlides = document.querySelectorAll(".slide-item");
+
+    function showSlide(index) {
+        allSlides.forEach((slide, i) => {
+            if (i === index) {
+                slide.classList.add("active");
+            } else {
+                slide.classList.remove("active");
+            }
+        });
         
-        document.getElementById("prevBtn").disabled = (currentSlide === 0);
-        document.getElementById("nextBtn").innerText = (currentSlide === slides.length - 1) ? "สิ้นสุดบทเรียน" : "ถัดไป ➔";
-        document.getElementById("nextBtn").disabled = (currentSlide === slides.length - 1 && direction > 0);
-        document.getElementById("page-num").innerText = `หน้า ${currentSlide + 1} / ${slides.length}`;
+        document.getElementById("prevBtn").disabled = (index === 0);
+        document.getElementById("nextBtn").disabled = (index === allSlides.length - 1);
+        document.getElementById("page-num").innerText = `หน้า ${index + 1} / ${allSlides.length}`;
+        
+        // เลื่อน Scrollbar ของเนื้อหากลับไปบนสุดทุกครั้งที่เปลี่ยนหน้าสไลด์
+        document.querySelector(".slide-viewer").scrollTop = 0;
     }
-    document.getElementById("prevBtn").disabled = true;
+
+    function changeSlide(dir) {
+        let nextIndex = currentSlide + dir;
+        if (nextIndex >= 0 && nextIndex < allSlides.length) {
+            currentSlide = nextIndex;
+            showSlide(currentSlide);
+        }
+    }
+
+    // โชว์หน้าแรกตอนโหลดเว็บ
+    showSlide(0);
 </script>
 </body>
 </html>
